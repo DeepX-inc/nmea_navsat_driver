@@ -103,19 +103,19 @@ class Ros2NMEADriver(Node):
             # RTK Fix
             4: [
                 self.default_epe_quality4,
-                NavSatStatus.STATUS_GBAS_FIX,
+                NavSatStatus.STATUS_GBAS_FIX,  # Only RTK Fix is assigned the highest status.
                 NavSatFix.COVARIANCE_TYPE_APPROXIMATED
             ],
             # RTK Float
             5: [
                 self.default_epe_quality5,
-                NavSatStatus.STATUS_GBAS_FIX,
+                NavSatStatus.STATUS_SBAS_FIX,
                 NavSatFix.COVARIANCE_TYPE_APPROXIMATED
             ],
             # WAAS
             9: [
                 self.default_epe_quality9,
-                NavSatStatus.STATUS_GBAS_FIX,
+                NavSatStatus.STATUS_SBAS_FIX,
                 NavSatFix.COVARIANCE_TYPE_APPROXIMATED
             ]
         }
