@@ -2,6 +2,10 @@
 Changelog for package nmea_navsat_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.1.0 (2025-03-06)
+------------------
+* Make RTK Fix the only quality level to correspond to STATUS_GBAS_FIX.
+
 2.0.1 (2023-08-31)
 ------------------
 * Fix parsing of true_course field in VTG message (`#165 <https://github.com/evenator/nmea_navsat_driver/issues/165>`_)
