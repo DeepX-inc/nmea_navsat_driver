@@ -33,6 +33,7 @@
 import serial
 
 import rclpy
+from nmea_msgs.msg import Sentence
 
 from libnmea_navsat_driver.driver import Ros2NMEADriver
 
@@ -42,6 +43,11 @@ def main(args=None):
 
     driver = Ros2NMEADriver()
     frame_id = driver.get_frame_id()
+
+    nmea_pub = driver.create_publisher(Sentence, "nmea_sentence", 10)
+
+    nmea_sentence_msg = Sentence()
+    nmea_sentence_msg.header.frame_id = frame_id
 
     serial_port = driver.declare_parameter('port', '/dev/ttyUSB0').value
     serial_baud = driver.declare_parameter('baud', 4800).value
@@ -54,8 +60,16 @@ def main(args=None):
                 data = GPS.readline().strip()
                 try:
                     if isinstance(data, bytes):
-                        data = data.decode("utf-8")
-                    driver.add_sentence(data, frame_id)
+                        data = data.decode('ascii')
+
+                    stamp = driver.get_clock().now().to_msg()
+
+                    driver.add_sentence(data, frame_id, timestamp=stamp)
+
+                    nmea_sentence_msg.header.stamp = stamp
+                    nmea_sentence_msg.sentence = data
+                    nmea_pub.publish(nmea_sentence_msg)
+
                 except ValueError as e:
                     driver.get_logger().warn(
                         "Value error, likely due to missing fields in the NMEA message. Error was: %s. "
