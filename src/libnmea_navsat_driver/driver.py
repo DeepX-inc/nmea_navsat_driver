@@ -38,7 +38,7 @@ from rclpy.node import Node
 
 from geometry_msgs.msg import TwistStamped, QuaternionStamped
 from nmea_msgs.msg import Sentence
-from sensor_msgs.msg import NavSatFix, NavSatStatus, TimeReference\
+from sensor_msgs.msg import NavSatFix, NavSatStatus, TimeReference
 from std_msgs.msg import Float64
 from tf_transformations import quaternion_from_euler
 
