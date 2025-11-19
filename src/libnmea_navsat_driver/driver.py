@@ -35,6 +35,7 @@ import math
 import rclpy
 
 from rclpy.node import Node
+from nmea_msgs.msg import Sentence
 from sensor_msgs.msg import NavSatFix, NavSatStatus, TimeReference
 from geometry_msgs.msg import TwistStamped, QuaternionStamped
 from tf_transformations import quaternion_from_euler
@@ -49,6 +50,7 @@ class Ros2NMEADriver(Node):
         self.fix_pub = self.create_publisher(NavSatFix, 'fix', 10)
         self.vel_pub = self.create_publisher(TwistStamped, 'vel', 10)
         self.heading_pub = self.create_publisher(QuaternionStamped, 'heading', 10)
+        self.nmea_pub = self.create_publisher(Sentence, "nmea_sentence", 10)
 
         self.time_ref_source = self.declare_parameter('time_ref_source', 'gps').value
         self.use_RMC = self.declare_parameter('useRMC', False).value
@@ -137,6 +139,12 @@ class Ros2NMEADriver(Node):
             current_time = timestamp
         else:
             current_time = self.get_clock().now().to_msg()
+
+        nmea_sentence_msg = Sentence()
+        nmea_sentence_msg.header.stamp = current_time
+        nmea_sentence_msg.header.frame_id = frame_id
+        nmea_sentence_msg.sentence = nmea_string
+        self.nmea_pub.publish(nmea_sentence_msg)
 
         current_fix = NavSatFix()
         current_fix.header.stamp = current_time
