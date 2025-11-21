@@ -35,10 +35,13 @@ import math
 import rclpy
 
 from rclpy.node import Node
+
+from geometry_msgs.msg import TwistStamped, QuaternionStamped
 from nmea_msgs.msg import Sentence
 from sensor_msgs.msg import NavSatFix, NavSatStatus, TimeReference
-from geometry_msgs.msg import TwistStamped, QuaternionStamped
+from std_msgs.msg import Float64
 from tf_transformations import quaternion_from_euler
+
 from libnmea_navsat_driver.checksum_utils import check_nmea_checksum
 from libnmea_navsat_driver import parser
 
@@ -51,6 +54,7 @@ class Ros2NMEADriver(Node):
         self.vel_pub = self.create_publisher(TwistStamped, 'vel', 10)
         self.heading_pub = self.create_publisher(QuaternionStamped, 'heading', 10)
         self.nmea_pub = self.create_publisher(Sentence, "nmea_sentence", 10)
+        self.hdop_pub = self.create_publisher(Float64, 'hdop', 10)
 
         self.time_ref_source = self.declare_parameter('time_ref_source', 'gps').value
         self.use_RMC = self.declare_parameter('useRMC', False).value
@@ -206,6 +210,7 @@ class Ros2NMEADriver(Node):
             current_fix.position_covariance[8] = (2 * hdop * self.alt_std_dev) ** 2  # FIXME
 
             self.fix_pub.publish(current_fix)
+            self.hdop_pub.publish(Float64(data=hdop))
 
             if not (math.isnan(data['utc_time'][0]) or self.use_GNSS_time):
                 current_time_ref.time_ref = rclpy.time.Time(seconds=data['utc_time'][0], nanoseconds=data['utc_time'][1]).to_msg()
