@@ -196,18 +196,17 @@ class Ros2NMEADriver(Node):
             altitude = data['altitude'] + data['mean_sea_level']
             current_fix.altitude = altitude
 
-            # use default epe std_dev unless we've received a GST sentence with epes
-            if not self.using_receiver_epe or math.isnan(self.lon_std_dev):
-                self.lon_std_dev = default_epe
-            if not self.using_receiver_epe or math.isnan(self.lat_std_dev):
-                self.lat_std_dev = default_epe
-            if not self.using_receiver_epe or math.isnan(self.alt_std_dev):
-                self.alt_std_dev = default_epe * 2
-
             hdop = data['hdop']
-            current_fix.position_covariance[0] = (hdop * self.lon_std_dev) ** 2
-            current_fix.position_covariance[4] = (hdop * self.lat_std_dev) ** 2
-            current_fix.position_covariance[8] = (2 * hdop * self.alt_std_dev) ** 2  # FIXME
+            if not self.using_receiver_epe or math.isnan(self.lon_std_dev):
+                self.lon_std_dev = hdop * default_epe
+            if not self.using_receiver_epe or math.isnan(self.lat_std_dev):
+                self.lat_std_dev = hdop * default_epe
+            if not self.using_receiver_epe or math.isnan(self.alt_std_dev):
+                self.alt_std_dev = 2 * hdop * default_epe
+
+            current_fix.position_covariance[0] = self.lon_std_dev ** 2
+            current_fix.position_covariance[4] = self.lat_std_dev ** 2
+            current_fix.position_covariance[8] = self.alt_std_dev ** 2
 
             self.fix_pub.publish(current_fix)
             self.hdop_pub.publish(Float64(data=hdop))
