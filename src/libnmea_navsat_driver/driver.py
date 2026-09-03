@@ -196,6 +196,7 @@ class Ros2NMEADriver(Node):
             altitude = data['altitude'] + data['mean_sea_level']
             current_fix.altitude = altitude
 
+            # use default epe std_dev unless we've received a GST sentence with epes
             hdop = data['hdop']
             if not self.using_receiver_epe or math.isnan(self.lon_std_dev):
                 self.lon_std_dev = hdop * default_epe
